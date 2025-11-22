@@ -146,7 +146,11 @@ export class Cabinet {
                 dGroup.add(plate);
 
                 // Add Contents
-                this.addRandomContent(dGroup, dw, dh, dd);
+                if (r === 0 && c === 0) {
+                    this.addDiamond(dGroup, dw, dh, dd);
+                } else {
+                    this.addRandomContent(dGroup, dw, dh, dd);
+                }
 
                 // Positioning
                 const posX = startX + c * drawerW;
@@ -206,5 +210,35 @@ export class Cabinet {
             orb.castShadow = true;
             group.add(orb);
         }
+    }
+
+    addDiamond(group, w, h, d) {
+        // Large Beautiful Diamond
+        // Using Icosahedron for more facets, and larger size
+        const geometry = new THREE.IcosahedronGeometry(0.12, 0);
+
+        // MeshPhysicalMaterial for realistic gem appearance (Diamond properties)
+        const material = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff,
+            metalness: 0.0,
+            roughness: 0.0,
+            transmission: 0.5, // Glass-like transparency
+            thickness: 1.0, // Volume thickness
+            ior: 2.4, // Diamond Index of Refraction
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.0,
+            emissive: 0x222222, // Slight inner glow
+            attenuationColor: 0xffffff,
+            attenuationDistance: 0.5
+        });
+
+        const diamond = new THREE.Mesh(geometry, material);
+        diamond.position.y = -h / 2 + 0.12; // Adjust height for new size
+        diamond.castShadow = true;
+
+        // Mark it for interaction
+        diamond.userData = { isDiamond: true };
+
+        group.add(diamond);
     }
 }

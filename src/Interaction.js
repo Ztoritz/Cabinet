@@ -9,7 +9,20 @@ export class Interaction {
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
 
+        this.diamond = null;
+        this.findDiamond();
+
         this.initEvents();
+    }
+
+    findDiamond() {
+        for (const drawer of this.drawers) {
+            drawer.traverse((child) => {
+                if (child.userData.isDiamond) {
+                    this.diamond = child;
+                }
+            });
+        }
     }
 
     initEvents() {
@@ -51,18 +64,24 @@ export class Interaction {
         const intersects = this.raycaster.intersectObjects(this.scene.children, true);
 
         if (intersects.length > 0) {
-            let targetDrawer = null;
+            const object = intersects[0].object;
 
-            for (let i = 0; i < intersects.length; i++) {
-                let obj = intersects[i].object;
-                while (obj.parent && obj.parent !== this.scene) {
-                    if (obj.userData && obj.userData.isDrawer) {
-                        targetDrawer = obj;
-                        break;
-                    }
-                    obj = obj.parent;
+            // Check for Diamond Click
+            if (object.userData.isDiamond) {
+                window.location.href = 'asgard.html';
+                return;
+            }
+
+            let targetDrawer = null;
+            let obj = object;
+
+            // Traverse up to find the drawer group
+            while (obj.parent && obj.parent !== this.scene) {
+                if (obj.userData && obj.userData.isDrawer) {
+                    targetDrawer = obj;
+                    break;
                 }
-                if (targetDrawer) break;
+                obj = obj.parent;
             }
 
             if (targetDrawer) {
@@ -149,5 +168,11 @@ export class Interaction {
 
     update(delta) {
         TWEEN.update();
+
+        // Sparkle Animation (Rotate Diamond)
+        if (this.diamond) {
+            this.diamond.rotation.y += delta * 0.5;
+            this.diamond.rotation.x += delta * 0.2;
+        }
     }
 }
