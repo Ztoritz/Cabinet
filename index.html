@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Magical Cabinet</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+  <div id="app"></div>
+  <div id="info">Click a drawer to open it</div>
+  <div id="error-container"
+    style="position: absolute; top: 0; left: 0; color: red; background: rgba(0,0,0,0.9); padding: 20px; z-index: 9999; display: none; white-space: pre-wrap;">
+  </div>
+  <script>
+    window.onerror = function (message, source, lineno, colno, error) {
+      const container = document.getElementById('error-container');
+      container.style.display = 'block';
+      container.innerHTML += `<div>Global Error: ${message} at ${source}:${lineno}</div>`;
+      console.error(error);
+    };
+  </script>
+  <script type="module" src="/main.js"></script>
+</body>
+
+</html>
