@@ -148,6 +148,8 @@ export class Cabinet {
                 // Add Contents
                 if (r === 0 && c === 0) {
                     this.addDiamond(dGroup, dw, dh, dd);
+                } else if (r === 0 && c === 1) {
+                    this.addToyCar(dGroup, dw, dh, dd);
                 } else {
                     this.addRandomContent(dGroup, dw, dh, dd);
                 }
@@ -240,5 +242,66 @@ export class Cabinet {
         diamond.userData = { isDiamond: true };
 
         group.add(diamond);
+    }
+
+    addToyCar(group, w, h, d) {
+        const carGroup = new THREE.Group();
+
+        // Car Body (Sporty Red)
+        const bodyGeo = new THREE.BoxGeometry(0.12, 0.03, 0.06);
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0xd90429, metalness: 0.6, roughness: 0.2 });
+        const body = new THREE.Mesh(bodyGeo, bodyMat);
+        body.position.y = 0.025;
+        body.castShadow = true;
+        carGroup.add(body);
+
+        // Car Cabin (Black/Glass)
+        const cabinGeo = new THREE.BoxGeometry(0.05, 0.025, 0.045);
+        const cabinMat = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.8, roughness: 0.1 });
+        const cabin = new THREE.Mesh(cabinGeo, cabinMat);
+        cabin.position.y = 0.05;
+        cabin.position.x = -0.01;
+        cabin.castShadow = true;
+        carGroup.add(cabin);
+
+        // Wheels
+        const wheelGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.015, 16);
+        const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+
+        const positions = [
+            [-0.04, 0.018, 0.03], // Back Left
+            [0.04, 0.018, 0.03],  // Front Left
+            [-0.04, 0.018, -0.03], // Back Right
+            [0.04, 0.018, -0.03]   // Front Right
+        ];
+
+        positions.forEach(pos => {
+            const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+            wheel.position.set(...pos);
+            wheel.rotation.x = Math.PI / 2;
+            wheel.castShadow = true;
+            carGroup.add(wheel);
+        });
+
+        // Headlights
+        const lightGeo = new THREE.CylinderGeometry(0.005, 0.005, 0.01, 8);
+        const lightMat = new THREE.MeshStandardMaterial({ color: 0xffffcc, emissive: 0xffffaa, emissiveIntensity: 2 });
+
+        const lLight = new THREE.Mesh(lightGeo, lightMat);
+        lLight.rotation.z = Math.PI / 2;
+        lLight.position.set(0.06, 0.03, 0.02);
+        carGroup.add(lLight);
+
+        const rLight = new THREE.Mesh(lightGeo, lightMat);
+        rLight.rotation.z = Math.PI / 2;
+        rLight.position.set(0.06, 0.03, -0.02);
+        carGroup.add(rLight);
+
+
+        // Position in drawer
+        carGroup.position.y = -h / 2;
+        carGroup.rotation.y = Math.PI / 8; // Angled slightly
+
+        group.add(carGroup);
     }
 }
