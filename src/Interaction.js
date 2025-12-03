@@ -80,6 +80,10 @@ export class Interaction {
                     window.location.href = 'Malte.html';
                     return;
                 }
+                if (carCheck.userData && carCheck.userData.isKey) {
+                    window.location.href = '3.html';
+                    return;
+                }
                 carCheck = carCheck.parent;
             }
 

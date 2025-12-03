@@ -9,7 +9,8 @@ export default defineConfig({
             input: {
                 main: 'index.html',
                 asgard: 'asgard.html',
-                malte: 'Malte.html'
+                malte: 'Malte.html',
+                keyroom: '3.html'
             }
         }
     },

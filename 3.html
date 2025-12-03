@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room 3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ffd700;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .key-container {
+            text-align: center;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .big-key {
+            font-size: 10rem;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.5));
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="key-container">
+        <div class="big-key">🗝️</div>
+        <h1 class="text-4xl mt-4">You found the Key to Room 3!</h1>
+        <p class="mt-2 text-xl opacity-70">The secret is unlocked.</p>
+        <a href="index.html"
+            class="mt-8 inline-block px-6 py-3 border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black transition-colors rounded-lg">Back
+            to Cabinet</a>
+    </div>
+</body>
+
+</html>

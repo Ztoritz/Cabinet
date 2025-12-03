@@ -150,6 +150,8 @@ export class Cabinet {
                     this.addDiamond(dGroup, dw, dh, dd);
                 } else if ((r === 0 && c === 1) || (r === 1 && c === 0)) {
                     this.addToyCar(dGroup, dw, dh, dd);
+                } else if (r === 0 && c === 2) {
+                    this.addKey(dGroup, dw, dh, dd);
                 } else {
                     this.addRandomContent(dGroup, dw, dh, dd);
                 }
@@ -326,5 +328,48 @@ export class Cabinet {
         carGroup.userData = { isToyCar: true };
 
         group.add(carGroup);
+    }
+
+    addKey(group, w, h, d) {
+        const keyGroup = new THREE.Group();
+        const scale = 1.5;
+
+        const material = new THREE.MeshStandardMaterial({
+            color: 0xffd700,
+            metalness: 1.0,
+            roughness: 0.3,
+            emissive: 0x332200
+        });
+
+        // Key Head (Ring)
+        const headGeo = new THREE.TorusGeometry(0.02 * scale, 0.005 * scale, 8, 16);
+        const head = new THREE.Mesh(headGeo, material);
+        head.position.z = 0.04 * scale;
+        head.castShadow = true;
+        keyGroup.add(head);
+
+        // Key Shaft
+        const shaftGeo = new THREE.CylinderGeometry(0.005 * scale, 0.005 * scale, 0.08 * scale, 8);
+        const shaft = new THREE.Mesh(shaftGeo, material);
+        shaft.rotation.x = Math.PI / 2;
+        shaft.castShadow = true;
+        keyGroup.add(shaft);
+
+        // Key Teeth
+        const toothGeo = new THREE.BoxGeometry(0.015 * scale, 0.02 * scale, 0.005 * scale);
+        const tooth = new THREE.Mesh(toothGeo, material);
+        tooth.position.set(0, -0.01 * scale, -0.03 * scale);
+        tooth.castShadow = true;
+        keyGroup.add(tooth);
+
+        // Position in drawer
+        keyGroup.position.y = -h / 2 + 0.02;
+        keyGroup.rotation.z = Math.PI / 2;
+        keyGroup.rotation.y = Math.PI / 4;
+
+        // Mark for interaction
+        keyGroup.userData = { isKey: true };
+
+        group.add(keyGroup);
     }
 }
