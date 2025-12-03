@@ -5,5 +5,8 @@ export default defineConfig({
     base: './',
     build: {
         outDir: 'dist'
+    },
+    preview: {
+        allowedHosts: true
     }
 })
