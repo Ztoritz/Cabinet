@@ -148,7 +148,7 @@ export class Cabinet {
                 // Add Contents
                 if (r === 0 && c === 0) {
                     this.addDiamond(dGroup, dw, dh, dd);
-                } else if (r === 0 && c === 1) {
+                } else if (r === 1 && c === 0) {
                     this.addToyCar(dGroup, dw, dh, dd);
                 } else {
                     this.addRandomContent(dGroup, dw, dh, dd);
