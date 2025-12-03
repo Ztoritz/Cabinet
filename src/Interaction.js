@@ -72,6 +72,17 @@ export class Interaction {
                 return;
             }
 
+            // Check for Toy Car Click
+            // Traverse up to find the car group if we clicked a part of it
+            let carCheck = object;
+            while (carCheck.parent && carCheck.parent !== this.scene) {
+                if (carCheck.userData && carCheck.userData.isToyCar) {
+                    window.location.href = 'Malte.html';
+                    return;
+                }
+                carCheck = carCheck.parent;
+            }
+
             let targetDrawer = null;
             let obj = object;
 

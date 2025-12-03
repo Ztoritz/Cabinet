@@ -302,6 +302,9 @@ export class Cabinet {
         carGroup.position.y = -h / 2;
         carGroup.rotation.y = Math.PI / 8; // Angled slightly
 
+        // Mark for interaction
+        carGroup.userData = { isToyCar: true };
+
         group.add(carGroup);
     }
 }

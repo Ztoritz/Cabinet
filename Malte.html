@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malte's Super Racing World</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
+        body {
+            background-color: #1a1a1a;
+            background-image: radial-gradient(#333 15%, transparent 16%), radial-gradient(#333 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            font-family: 'Fredoka One', cursive;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        /* The Hot Wheels Style Orange Track */
+        .track-path {
+            fill: none;
+            stroke: #ff7b00;
+            stroke-width: 40;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0px 10px 0px #b35500);
+        }
+
+        .track-center {
+            fill: none;
+            stroke: #ff9100;
+            stroke-width: 4;
+            stroke-dasharray: 20 20;
+            opacity: 0.6;
+        }
+
+        /* The Car Styling */
+        .car-container {
+            position: absolute;
+            width: 80px;
+            height: 40px;
+            z-index: 10;
+            transform-origin: center bottom;
+            will-change: transform, left, top;
+            pointer-events: none;
+            /* Let clicks pass through to track */
+        }
+
+        .car-body {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px 20px 5px 5px;
+            position: relative;
+            box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s;
+        }
+
+        .car-window {
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            width: 30px;
+            height: 15px;
+            background: #aaddff;
+            border-radius: 5px 20px 0 0;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .wheel {
+            position: absolute;
+            bottom: -8px;
+            width: 18px;
+            height: 18px;
+            background: #222;
+            border: 3px solid #ddd;
+            border-radius: 50%;
+            animation: spin 0.5s linear infinite;
+        }
+
+        .wheel.front {
+            right: 10px;
+        }
+
+        .wheel.back {
+            left: 10px;
+        }
+
+        .spoiler {
+            position: absolute;
+            top: -5px;
+            left: 0;
+            width: 20px;
+            height: 10px;
+            background-color: inherit;
+            filter: brightness(0.8);
+            border-radius: 2px;
+        }
+
+        /* Animations */
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .btn-press {
+            animation: bounce 0.2s;
+        }
+
+        /* Particle Effects */
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* UI Elements */
+        .control-panel {
+            background: linear-gradient(to bottom, #ff3333, #cc0000);
+            border-top: 8px solid #ffcc00;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .big-btn {
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.1s;
+        }
+
+        .big-btn:active {
+            transform: translateY(8px);
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0.3);
+        }
+
+        #title-text {
+            text-shadow: 4px 4px 0px #000;
+            background: linear-gradient(to right, #ffcc00, #ff6600);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .finish-line {
+            stroke: white;
+            stroke-width: 4;
+            stroke-dasharray: 10 10;
+        }
+    </style>
+</head>
+
+<body class="h-screen w-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="p-4 text-center z-20 pointer-events-none relative">
+        <h1 id="title-text" class="text-5xl md:text-7xl font-extrabold tracking-wider transform -rotate-2">
+            MALTE'S GARAGE
+        </h1>
+        <div class="text-white text-xl mt-2 font-bold drop-shadow-md">
+            Turbo Racing Team 🏁
+        </div>
+    </header>
+
+    <!-- The Racing Area -->
+    <main id="game-area" class="flex-grow relative w-full h-full overflow-hidden cursor-crosshair">
+
+        <!-- SVG Track Background -->
+        <svg id="track-svg" class="absolute top-0 left-0 w-full h-full" preserveAspectRatio="none">
+            <!-- Definitions for gradients -->
+            <defs>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
+                    <feMerge>
+                        <feMergeNode in="coloredBlur" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+            </defs>
+
+            <!-- The Loop De Loop Track -->
+            <path id="track-main" class="track-path"
+                d="M -100,500 C 200,500 300,500 400,300 C 500,100 600,100 700,300 C 800,500 1000,500 1200,200" />
+            <path id="track-center" class="track-center"
+                d="M -100,500 C 200,500 300,500 400,300 C 500,100 600,100 700,300 C 800,500 1000,500 1200,200" />
+
+            <!-- Finish Line Checkers -->
+            <rect x="80%" y="10%" width="50" height="200" fill="url(#checkers)" transform="rotate(45)" opacity="0" />
+        </svg>
+
+        <!-- Message Overlay -->
+        <div id="message"
+            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-6xl font-bold opacity-0 transition-opacity duration-300 pointer-events-none text-center"
+            style="text-shadow: 3px 3px 0 #000;">
+            GO MALTE!
+        </div>
+
+    </main>
+
+    <!-- Control Panel -->
+    <div class="control-panel w-full p-4 pb-8 flex justify-center gap-4 md:gap-8 items-center z-30">
+
+        <button onclick="launchCar('blue')"
+            class="big-btn bg-blue-500 hover:bg-blue-400 text-white rounded-2xl w-24 h-24 md:w-32 md:h-32 flex flex-col items-center justify-center border-4 border-blue-700">
+            <span class="text-4xl">🚙</span>
+            <span class="text-sm md:text-xl mt-1 uppercase">Blue</span>
+        </button>
+
+        <button onclick="launchCar('red')"
+            class="big-btn bg-red-600 hover:bg-red-500 text-white rounded-2xl w-28 h-28 md:w-40 md:h-40 flex flex-col items-center justify-center border-4 border-red-800 transform scale-110">
+            <span class="text-5xl">🏎️</span>
+            <span class="text-lg md:text-2xl mt-1 uppercase font-bold">RACE!</span>
+        </button>
+
+        <button onclick="launchCar('green')"
+            class="big-btn bg-green-500 hover:bg-green-400 text-white rounded-2xl w-24 h-24 md:w-32 md:h-32 flex flex-col items-center justify-center border-4 border-green-700">
+            <span class="text-4xl">🚚</span>
+            <span class="text-sm md:text-xl mt-1 uppercase">Green</span>
+        </button>
+
+    </div>
+
+    <!-- Audio (Synthesized for single file compatibility) -->
+    <script>
+        // --- Setup Sound ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playVroom(pitchType) {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            osc.type = 'sawtooth';
+            // Simple engine rev effect
+            const startFreq = pitchType === 'high' ? 150 : 80;
+            const endFreq = pitchType === 'high' ? 600 : 300;
+
+            osc.frequency.setValueAtTime(startFreq, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(endFreq, audioCtx.currentTime + 0.5);
+            osc.frequency.exponentialRampToValueAtTime(startFreq, audioCtx.currentTime + 1.5);
+
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.5);
+        }
+
+        function playHonk() {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        }
+
+        // --- Track Logic ---
+        const svgArea = document.getElementById('track-svg');
+        const trackPath = document.getElementById('track-main');
+        const trackCenter = document.getElementById('track-center');
+        const gameArea = document.getElementById('game-area');
+
+        // Resize track to fill screen nicely
+        function updateTrackPath() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            // Create a curvy path depending on screen size
+            const pathData = `
+                M -100, ${h * 0.8} 
+                C ${w * 0.2}, ${h * 0.8} ${w * 0.3}, ${h * 0.8} ${w * 0.4}, ${h * 0.5} 
+                C ${w * 0.5}, ${h * 0.1} ${w * 0.6}, ${h * 0.1} ${w * 0.7}, ${h * 0.5} 
+                C ${w * 0.8}, ${h * 0.9} ${w * 0.9}, ${h * 0.9} ${w + 100}, ${h * 0.4}
+            `;
+            trackPath.setAttribute('d', pathData);
+            trackCenter.setAttribute('d', pathData);
+        }
+
+        window.addEventListener('resize', updateTrackPath);
+        updateTrackPath();
+
+        // --- Car Logic ---
+        function launchCar(color) {
+            // Visual Button Feedback
+            const btn = event.currentTarget;
+            btn.classList.add('btn-press');
+            setTimeout(() => btn.classList.remove('btn-press'), 200);
+
+            // Message
+            showMessage();
+
+            // Sound
+            playVroom(color === 'red' ? 'high' : 'low');
+
+            // Create Car DOM Element
+            const carEl = document.createElement('div');
+            carEl.className = 'car-container';
+
+            // Randomize styling slightly
+            const colors = {
+                red: '#ef4444',
+                blue: '#3b82f6',
+                green: '#22c55e'
+            };
+            const carColor = colors[color];
+
+            carEl.innerHTML = `
+                <div class="car-body" style="background-color: ${carColor};">
+                    <div class="car-window"></div>
+                    <div class="spoiler" style="background-color: ${carColor};"></div>
+                    <div class="wheel front"></div>
+                    <div class="wheel back"></div>
+                    <div style="position:absolute; left:5px; top:15px; font-size:10px; color:white; font-weight:bold; opacity:0.8;">MALTE</div>
+                </div>
+            `;
+
+            gameArea.appendChild(carEl);
+
+            // Animate along the SVG path
+            animateCarAlongPath(carEl, trackCenter);
+        }
+
+        function animateCarAlongPath(element, pathElement) {
+            const totalLength = pathElement.getTotalLength();
+            const duration = 2000 + Math.random() * 1000; // Random speed
+            const startTime = performance.now();
+
+            function step(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                // Get point along path
+                const point = pathElement.getPointAtLength(progress * totalLength);
+                // Get a point slightly ahead to calculate rotation
+                const pointAhead = pathElement.getPointAtLength(Math.min((progress + 0.01), 1) * totalLength);
+
+                // Calculate Angle
+                const angle = Math.atan2(pointAhead.y - point.y, pointAhead.x - point.x) * 180 / Math.PI;
+
+                // Apply CSS styles
+                element.style.left = (point.x - 40) + 'px'; // Center offset
+                element.style.top = (point.y - 40) + 'px';
+                element.style.transform = `rotate(${angle}deg)`;
+
+                // Add dust particles occasionally
+                if (Math.random() > 0.8) {
+                    createParticle(point.x, point.y + 20, '#555');
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    // Car finished
+                    element.remove();
+                    createConfetti(window.innerWidth, window.innerHeight / 2);
+                    playHonk();
+                }
+            }
+
+            requestAnimationFrame(step);
+        }
+
+        // --- Effects ---
+
+        const messages = ["ZOOM!", "GO MALTE!", "VROOM!", "FAST!", "TURBO!"];
+        function showMessage() {
+            const msgEl = document.getElementById('message');
+            msgEl.innerText = messages[Math.floor(Math.random() * messages.length)];
+            msgEl.style.opacity = '1';
+            msgEl.style.transform = 'translate(-50%, -50%) scale(1.5)';
+
+            setTimeout(() => {
+                msgEl.style.opacity = '0';
+                msgEl.style.transform = 'translate(-50%, -50%) scale(1)';
+            }, 800);
+        }
+
+        function createParticle(x, y, color) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.backgroundColor = color;
+            p.style.left = x + 'px';
+            p.style.top = y + 'px';
+            p.style.opacity = '0.8';
+            gameArea.appendChild(p);
+
+            // Animate particle fading away
+            let life = 1.0;
+            const driftX = (Math.random() - 0.5) * 2;
+            const driftY = (Math.random() * 2);
+
+            function fade() {
+                life -= 0.05;
+                const currentTop = parseFloat(p.style.top);
+                const currentLeft = parseFloat(p.style.left);
+                p.style.top = (currentTop + driftY) + 'px';
+                p.style.left = (currentLeft + driftX) + 'px';
+                p.style.opacity = life;
+                p.style.transform = `scale(${life})`;
+
+                if (life > 0) {
+                    requestAnimationFrame(fade);
+                } else {
+                    p.remove();
+                }
+            }
+            requestAnimationFrame(fade);
+        }
+
+        function createConfetti(x, y) {
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const c = document.createElement('div');
+                    c.className = 'particle';
+                    c.style.backgroundColor = ['#ff0', '#f00', '#00f', '#0f0', '#fff'][Math.floor(Math.random() * 5)];
+                    c.style.left = (window.innerWidth - 50) + 'px'; // Spawn at end of track roughly
+                    c.style.top = (Math.random() * window.innerHeight) + 'px';
+                    c.style.width = '15px';
+                    c.style.height = '15px';
+                    c.style.zIndex = 100;
+                    gameArea.appendChild(c);
+
+                    let vx = (Math.random() - 0.5) * 15;
+                    let vy = (Math.random() - 0.5) * 15;
+                    let life = 1;
+
+                    function moveConfetti() {
+                        life -= 0.02;
+                        const top = parseFloat(c.style.top);
+                        const left = parseFloat(c.style.left);
+
+                        c.style.top = (top + vy) + 'px';
+                        c.style.left = (left + vx) + 'px';
+                        c.style.opacity = life;
+                        c.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+                        vy += 0.5; // Gravity
+
+                        if (life > 0) {
+                            requestAnimationFrame(moveConfetti);
+                        } else {
+                            c.remove();
+                        }
+                    }
+                    requestAnimationFrame(moveConfetti);
+                }, i * 20);
+            }
+        }
+
+        // --- Interaction on the "Rug" ---
+        gameArea.addEventListener('click', (e) => {
+            // If they click anywhere on the background, make a little sound and sparkle
+            createParticle(e.clientX, e.clientY, '#ffcc00');
+            if (audioCtx) {
+                const osc = audioCtx.createOscillator();
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.05);
+            }
+        });
+
+    </script>
+</body>
+
+</html>
