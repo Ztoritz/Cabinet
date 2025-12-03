@@ -97,8 +97,27 @@ export class Interaction {
 
             if (targetDrawer) {
                 this.toggleDrawer(targetDrawer);
+            } else {
+                // Clicked on something else (cabinet frame, floor, etc)
+                this.resetToHome();
             }
+        } else {
+            // Clicked on background (void)
+            this.resetToHome();
         }
+    }
+
+    closeAllDrawers() {
+        this.drawers.forEach(d => {
+            if (d.userData.isOpen) {
+                this.animateDrawer(d, d.userData.originalPosition, false);
+            }
+        });
+    }
+
+    resetToHome() {
+        this.closeAllDrawers();
+        this.resetCamera();
     }
 
     toggleDrawer(drawer) {
